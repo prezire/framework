@@ -8,9 +8,6 @@ env:
 matrix:
   fast_finish: true
   include:
-    - php: 7.1
-    - php: 7.1
-      env: SETUP=lowest
     - php: 7.2
     - php: 7.2
       env: SETUP=lowest
@@ -29,7 +26,8 @@ services:
 
 before_install:
   - phpenv config-rm xdebug.ini || true
-  - printf "\n" | pecl install -f memcached redis
+  - echo "extension = memcached.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+  - printf "\n" | pecl install -f redis
   - travis_retry composer self-update
   - mysql -e 'CREATE DATABASE forge;'
 
