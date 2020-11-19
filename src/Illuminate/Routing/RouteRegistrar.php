@@ -55,7 +55,7 @@ class RouteRegistrar
      * @var string[]
      */
     protected $allowedAttributes = [
-        'as', 'domain', 'middleware', 'name', 'namespace', 'prefix', 'where',
+        'as', 'domain', 'middleware', 'name', 'namespace', 'prefix', 'where', 'controller'
     ];
 
     /**
@@ -76,6 +76,21 @@ class RouteRegistrar
     public function __construct(Router $router)
     {
         $this->router = $router;
+    }
+
+    /**
+     * The route group's default controller name when there is no
+     * controller explicitely specified for verbs.
+     *
+     * @param  string  $name
+     * @return \Illuminate\Routing\RouteRegistrar
+     * @see    \Illuminate\Routing\Router
+     */
+    public function controller(string $name)
+    {
+        $this->router->setControllerName($name);
+
+        return $this;
     }
 
     /**

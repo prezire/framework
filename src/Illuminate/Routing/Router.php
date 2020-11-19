@@ -113,6 +113,14 @@ class Router implements BindingRegistrar, RegistrarContract
     protected $groupStack = [];
 
     /**
+     * The route group's default controller name when there is no
+     * controller explicitely specified for verbs.
+     *
+     * @var string
+     */
+    protected $controllerName = '';
+
+    /**
      * All of the verbs supported by the router.
      *
      * @var string[]
@@ -131,6 +139,18 @@ class Router implements BindingRegistrar, RegistrarContract
         $this->events = $events;
         $this->routes = new RouteCollection;
         $this->container = $container ?: new Container;
+    }
+
+    /**
+     * Setter for the controller name of the group.
+     *
+     * @param   string  $name
+     * @return  void
+     * @see     \Illuminate\Routing\RouteRegistrar
+     */
+    public function setControllerName(string $name)
+    {
+        $this->controllerName = $name;
     }
 
     /**
@@ -520,12 +540,44 @@ class Router implements BindingRegistrar, RegistrarContract
             $action['uses'] = $this->prependGroupNamespace($action['uses']);
         }
 
+        $this->prependControllerName($action);
+
         // Here we will set this controller name on the action array just so we always
         // have a copy of it for reference if we need it. This can be used while we
         // search for a controller name or do some other type of fetch operation.
         $action['controller'] = $action['uses'];
 
         return $action;
+    }
+
+    /**
+     * Attach a cascadable controller to inner groups with verbs that don't
+     * have explicit controller names and methods in them.
+     *
+     * @param  array  $action  Pass by reference. Updates the value of the
+     * action's 'uses' key.
+     * @return void
+     */
+    protected function prependControllerName(array &$action)
+    {
+        dd($action);
+        if($this->controllerName)
+        {
+            $nsSeparator = '\\';
+            $methodSeparator = '@';
+
+            //@var  array  $fqns  Fully qualified namespace.
+            $fqns = explode($nsSeparator, $action['uses']);
+
+            //Do not prepend when controller and method are both
+            //explicitely defined for such verb.
+            $methodName = array_pop($fqns);
+            if(! strpos($methodName, $methodSeparator))
+            {
+                $fqns[] = $this->controllerName;
+                $action['uses'] = implode($nsSeparator, $fqns) . $methodSeparator . $methodName;
+            }
+        }
     }
 
     /**
