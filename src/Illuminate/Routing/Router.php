@@ -560,7 +560,7 @@ class Router implements BindingRegistrar, RegistrarContract
      */
     protected function prependControllerName(array &$action)
     {
-        dd($action);
+        dd('xxx test');
         if($this->controllerName)
         {
             $nsSeparator = '\\';
